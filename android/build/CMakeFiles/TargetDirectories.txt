@@ -1,0 +1,2 @@
+/home/deepak/development/aruco-1.2.2/android/build/src/CMakeFiles/aruco.dir
+/home/deepak/development/aruco-1.2.2/android/build/CMakeFiles/uninstall.dir
