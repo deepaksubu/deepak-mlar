@@ -151,15 +151,37 @@ int main(int argc,char **argv)
                 TheMarkers[i].draw(TheInputImageCopy,Scalar(0,0,255),1);
             }
 	    
-	    cv::Mat t1,t2;
+	    if (TheMarkers.size() >= 4){
+	      try{	    
+		cv::Mat t0 = TheMarkers[0].Tvec;
+		cv::Mat t1 = TheMarkers[1].Tvec;
+		cv::Mat t2 = TheMarkers[2].Tvec;
+		cv::Mat t3 = TheMarkers[3].Tvec;
+
+		float x_len = (t0.at<float>(0,0) - t1.at<float>(0,0));
+		float y_len = (t0.at<float>(1,0) - t1.at<float>(1,0));
+		float z_len = (t0.at<float>(2,0) - t1.at<float>(2,0));
+		float distancesq_len = x_len*x_len+y_len*y_len+z_len*z_len;
+		float distance_len = sqrt(distancesq_len);
+
+		float x_width = (t1.at<float>(0,0) - t2.at<float>(0,0));
+		float y_width = (t1.at<float>(1,0) - t2.at<float>(1,0));
+		float z_width = (t1.at<float>(2,0) - t2.at<float>(2,0));
+		float distancesq_width = x_width*x_width+y_width*y_width+z_width*z_width;
+		float distance_width = sqrt(distancesq_width);
+
+		cout<<"Length:"<<distance_len<<endl;
+		cout<<"Width:"<<distance_width<<endl;
+		cout<<"Perimeter:"<<(2*distance_len + 2*distance_width)<<endl;
+		cout<<"Area:"<<distance_len*distance_width<<endl;
+	      }
+	      catch (std::exception& e){
+		cout<<e.what()<<endl;
+	      }
+	    }
 	    
-	    cv::Mat t1 = TheMarkers[i].Tvec.ptr<float>(0)[0];
-	    cv::Mat t2 = TheMarkers[i].Tvec.ptr<float>(0)[0];
-	    float x = (t1.at<double>(0,0) - t2.at<double>(0,0));
-	    float y = (t1.at<double>(1,0) - t2.at<double>(1,0));
-	    float z = (t1.at<double>(2,0) - t2.at<double>(2,0));
-	    distancesq = x*x+y*y+z*z;
-	    distance = sqrt(distancesq);
+	   
+            
 	    
 
 	    
@@ -168,6 +190,7 @@ int main(int argc,char **argv)
             //     aruco::Marker m( MDetector.getCandidates()[i],999);
             //     m.draw(TheInputImageCopy,cv::Scalar(255,0,0));
             // }
+
 
 
 

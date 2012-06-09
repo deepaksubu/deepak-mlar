@@ -1,0 +1,12 @@
+/home/deepak/development/aruco-1.2.2/build-new/src/CMakeFiles/aruco.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_board_pix2meters.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_create_board.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_create_marker.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_selectoptimalmarkers.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_simple.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_simple_board.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_test.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_test_board.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_test_board_gl.dir
+/home/deepak/development/aruco-1.2.2/build-new/utils/CMakeFiles/aruco_test_gl.dir
+/home/deepak/development/aruco-1.2.2/build-new/CMakeFiles/uninstall.dir

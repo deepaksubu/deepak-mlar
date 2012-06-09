@@ -93,7 +93,8 @@ int main(int argc,char **argv)
     {//parse arguments
         if (readArguments (argc,argv)==false) return 0;
         //read from camera
-        if (TheInputVideo=="live") TheVideoCapturer.open(0);
+	//deepak changed to 1 from 0
+        if (TheInputVideo=="live") TheVideoCapturer.open(1);
         else TheVideoCapturer.open(TheInputVideo);
         if (!TheVideoCapturer.isOpened())
         {
@@ -174,6 +175,69 @@ void axis(float size)
 
 
 }
+/**********************************************************
+ *Calculate the distance between two points expressed as cv matrices
+ *Finished by deepak
+ *
+ *
+ **************************************************************/
+
+float calculateDistance(cv::Mat t0,cv::Mat t1){
+  
+  float d[3];
+  float distsquared = 0;
+  float distance = 0;
+  for (int i = 0; i < 3; i++){
+    d[i] = (t0.at<float>(i,0) - t1.at<float>(i,0)); 
+    distsquared = distsquared + d[i] * d[i];   
+  }
+  
+  distance = sqrt(distsquared);
+  
+  return distance;
+  
+}
+
+vector<float> calculateAreaAndPerimeter(){
+  vector<float> ap;
+
+  
+  if (TheMarkers.size() <= 3) {
+    ap.push_back(0);
+    ap.push_back(0);
+    return ap;
+  }
+  
+  cv::Mat t0 = TheMarkers[0].Tvec;
+  cv::Mat t1 = TheMarkers[1].Tvec;
+  cv::Mat t2 = TheMarkers[2].Tvec;
+		
+  cv::Point2f c = TheMarkers[0].getCenter();
+  cout<<"center:"<<c<<endl;
+
+  //If the input is a square
+  if (TheMarkers.size() == 4){
+    float length = calculateDistance(t0,t1);
+    float width = calculateDistance(t1,t2);
+    float area = length * width;
+    float perimeter = 2*length + 2*width;
+    ap.push_back(area); ap.push_back(perimeter);
+  }
+  
+  return ap;
+  
+}
+
+void drawString(char* string){
+
+  char *c;
+  for (c=string; *c != '\0'; c++) 
+    {
+      glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
+    }
+ 
+}
+
 /************************************
  *
  *
@@ -213,10 +277,8 @@ void vDrawScene()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glLoadMatrixd(modelview_matrix);
-
-
         axis(TheMarkerSize);
-
+	
         glColor3f(1,0.4,0.4);
         glTranslatef(0, TheMarkerSize/2,0);
         glPushMatrix();
@@ -224,10 +286,22 @@ void vDrawScene()
 
         glPopMatrix();
     }
-
+    vector<float> ap;
+    ap = calculateAreaAndPerimeter();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glRasterPos3f( 0, 0, 0 );
+    glColor3f(1,0,0);
+    char buffer[50];
+    cout<<ap[0]<<endl;
+    cout<<ap[1]<<endl;
+    int n = sprintf(buffer,"Area:%f Perimeter:%f\n",ap[0],ap[1]);
+    drawString(buffer);
+    glPopMatrix();
     glutSwapBuffers();
 
 }
+
 
 
 /************************************

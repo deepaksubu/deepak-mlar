@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -68,7 +68,6 @@ src/CMakeFiles/aruco.dir/markerdetector.cpp.o.provides: src/CMakeFiles/aruco.dir
 .PHONY : src/CMakeFiles/aruco.dir/markerdetector.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/markerdetector.cpp.o.provides.build: src/CMakeFiles/aruco.dir/markerdetector.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/markerdetector.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/boarddetector.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/boarddetector.cpp.o: ../src/boarddetector.cpp
@@ -92,7 +91,6 @@ src/CMakeFiles/aruco.dir/boarddetector.cpp.o.provides: src/CMakeFiles/aruco.dir/
 .PHONY : src/CMakeFiles/aruco.dir/boarddetector.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/boarddetector.cpp.o.provides.build: src/CMakeFiles/aruco.dir/boarddetector.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/boarddetector.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o: ../src/cvdrawingutils.cpp
@@ -116,7 +114,6 @@ src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o.provides: src/CMakeFiles/aruco.dir
 .PHONY : src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o.provides.build: src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/cvdrawingutils.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o: ../src/arucofidmarkers.cpp
@@ -140,7 +137,6 @@ src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o.provides: src/CMakeFiles/aruco.di
 .PHONY : src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o.provides.build: src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/arucofidmarkers.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/board.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/board.cpp.o: ../src/board.cpp
@@ -164,7 +160,6 @@ src/CMakeFiles/aruco.dir/board.cpp.o.provides: src/CMakeFiles/aruco.dir/board.cp
 .PHONY : src/CMakeFiles/aruco.dir/board.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/board.cpp.o.provides.build: src/CMakeFiles/aruco.dir/board.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/board.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/cameraparameters.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/cameraparameters.cpp.o: ../src/cameraparameters.cpp
@@ -188,7 +183,6 @@ src/CMakeFiles/aruco.dir/cameraparameters.cpp.o.provides: src/CMakeFiles/aruco.d
 .PHONY : src/CMakeFiles/aruco.dir/cameraparameters.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/cameraparameters.cpp.o.provides.build: src/CMakeFiles/aruco.dir/cameraparameters.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/cameraparameters.cpp.o.provides.build
 
 src/CMakeFiles/aruco.dir/marker.cpp.o: src/CMakeFiles/aruco.dir/flags.make
 src/CMakeFiles/aruco.dir/marker.cpp.o: ../src/marker.cpp
@@ -212,7 +206,6 @@ src/CMakeFiles/aruco.dir/marker.cpp.o.provides: src/CMakeFiles/aruco.dir/marker.
 .PHONY : src/CMakeFiles/aruco.dir/marker.cpp.o.provides
 
 src/CMakeFiles/aruco.dir/marker.cpp.o.provides.build: src/CMakeFiles/aruco.dir/marker.cpp.o
-.PHONY : src/CMakeFiles/aruco.dir/marker.cpp.o.provides.build
 
 # Object files for target aruco
 aruco_OBJECTS = \

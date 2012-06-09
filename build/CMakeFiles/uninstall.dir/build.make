@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -38,6 +38,9 @@ CMAKE_SOURCE_DIR = /home/deepak/development/aruco-1.2.2
 CMAKE_BINARY_DIR = /home/deepak/development/aruco-1.2.2/build
 
 # Utility rule file for uninstall.
+
+# Include the progress variables for this target.
+include CMakeFiles/uninstall.dir/progress.make
 
 CMakeFiles/uninstall:
 	/usr/bin/cmake -P /home/deepak/development/aruco-1.2.2/build/cmake_uninstall.cmake

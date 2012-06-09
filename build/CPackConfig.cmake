@@ -5,7 +5,7 @@
 #   CPACK_INSTALL_CMAKE_PROJECTS        - For each project (path, name, component)
 #   CPACK_CMAKE_GENERATOR               - CMake Generator used for the projects
 #   CPACK_INSTALL_COMMANDS              - Extra commands to install components
-#   CPACK_INSTALL_DIRECTORIES           - Extra directories to install
+#   CPACK_INSTALLED_DIRECTORIES           - Extra directories to install
 #   CPACK_PACKAGE_DESCRIPTION_FILE      - Description file for the package
 #   CPACK_PACKAGE_DESCRIPTION_SUMMARY   - Summary of the package
 #   CPACK_PACKAGE_EXECUTABLES           - List of pairs of executables and labels
@@ -53,6 +53,7 @@ SET(CPACK_MODULE_PATH "/usr/local/lib/cmake/;/usr/lib/cmake")
 SET(CPACK_NSIS_DISPLAY_NAME "CMake .")
 SET(CPACK_NSIS_INSTALLER_ICON_CODE "")
 SET(CPACK_NSIS_INSTALLER_MUI_ICON_CODE "")
+SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 SET(CPACK_NSIS_PACKAGE_NAME "CMake .")
 SET(CPACK_OUTPUT_CONFIG_FILE "/home/deepak/development/aruco-1.2.2/build/CPackConfig.cmake")
 SET(CPACK_PACKAGE_CONTACT "rmsalinas@uco.es")
@@ -61,7 +62,7 @@ SET(CPACK_PACKAGE_DESCRIPTION_FILE "/usr/share/cmake-2.8/Templates/CPack.Generic
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ArUco Library")
 SET(CPACK_PACKAGE_FILE_NAME "aruco-1.2.2-Linux")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake .")
-SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "aruco 1.2.2")
+SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "CMake .")
 SET(CPACK_PACKAGE_NAME "aruco")
 SET(CPACK_PACKAGE_RELOCATABLE "true")
 SET(CPACK_PACKAGE_VENDOR "Rafael Munoz-Salinas. AVA Group. University of Cordoba. Spain")

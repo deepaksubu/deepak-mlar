@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -68,7 +68,6 @@ utils/CMakeFiles/aruco_test_gl.dir/aruco_test_gl.cpp.o.provides: utils/CMakeFile
 .PHONY : utils/CMakeFiles/aruco_test_gl.dir/aruco_test_gl.cpp.o.provides
 
 utils/CMakeFiles/aruco_test_gl.dir/aruco_test_gl.cpp.o.provides.build: utils/CMakeFiles/aruco_test_gl.dir/aruco_test_gl.cpp.o
-.PHONY : utils/CMakeFiles/aruco_test_gl.dir/aruco_test_gl.cpp.o.provides.build
 
 # Object files for target aruco_test_gl
 aruco_test_gl_OBJECTS = \

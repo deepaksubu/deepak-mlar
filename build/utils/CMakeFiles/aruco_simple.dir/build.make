@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -68,7 +68,6 @@ utils/CMakeFiles/aruco_simple.dir/aruco_simple.cpp.o.provides: utils/CMakeFiles/
 .PHONY : utils/CMakeFiles/aruco_simple.dir/aruco_simple.cpp.o.provides
 
 utils/CMakeFiles/aruco_simple.dir/aruco_simple.cpp.o.provides.build: utils/CMakeFiles/aruco_simple.dir/aruco_simple.cpp.o
-.PHONY : utils/CMakeFiles/aruco_simple.dir/aruco_simple.cpp.o.provides.build
 
 # Object files for target aruco_simple
 aruco_simple_OBJECTS = \
