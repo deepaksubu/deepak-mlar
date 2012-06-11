@@ -312,21 +312,25 @@ void vDrawScene()
     //glColor3f (1,0,1 );
     //glutSolidTeapot(4);
 
-    if (centers.size() > 1){
+    if (centers.size() > 3){
       //      for (int c = 0; c < 3; c++){
       glColor3f(1,1,0);
       //glTranslatef(centers[0].x,0.0f,centers[0].y);
       glPushMatrix();
       glLoadIdentity();
       //    glTranslatef(0, TheMarkerSize/2,0);
-       glBegin(GL_LINES);
+       glBegin(GL_QUADS);
       // //origin of the line
       // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
       // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
        cv::Mat t0 = TheMarkers[0].Tvec;
        cv::Mat t1 = TheMarkers[1].Tvec;
+       cv::Mat t2 = TheMarkers[2].Tvec;
+       cv::Mat t3 = TheMarkers[3].Tvec;
+       glVertex3f(t3.at<float>(0,0),t3.at<float>(1,0) ,-t3.at<float>(2,0));
+       glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
        glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-      glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
        glEnd();
       glutSolidTeapot(0.01);
