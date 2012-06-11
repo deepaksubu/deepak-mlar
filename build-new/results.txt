@@ -1,0 +1,2 @@
+Exception :/home/deepak/development/aruco-1.2.2/src/cameraparameters.cpp:200: error: (9007) File :camera.yml does not contains valid camera matrix in function CameraParameters::readFromXML
+

@@ -246,58 +246,112 @@ void drawString(char* string){
  ************************************/
 void vDrawScene()
 {
-    if (TheResizedImage.rows==0) //prevent from going on until the image is initialized
+  if (TheResizedImage.rows==0)// prevent from going on until the image is initialized
         return;
     ///clear
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    ///draw image in the buffer
+    //glColor3f(1.0f,0.0f,0.0f);
+    //    draw image in the buffer
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, TheGlWindowSize.width, 0, TheGlWindowSize.height, -1.0, 1.0);
     glViewport(0, 0, TheGlWindowSize.width , TheGlWindowSize.height);
     glDisable(GL_TEXTURE_2D);
+    
+    
     glPixelZoom( 1, -1);
     glRasterPos3f( 0, TheGlWindowSize.height  - 0.5, -1.0 );
     glDrawPixels ( TheGlWindowSize.width , TheGlWindowSize.height , GL_RGB , GL_UNSIGNED_BYTE , TheResizedImage.ptr(0) );
     ///Set the appropriate projection matrix so that rendering is done in a enrvironment
     //like the real camera (without distorsion)
+
     glMatrixMode(GL_PROJECTION);
     double proj_matrix[16];
     TheCameraParams.glGetProjectionMatrix(TheInputImage.size(),TheGlWindowSize,proj_matrix,0.05,10);
     glLoadIdentity();
     glLoadMatrixd(proj_matrix);
 
+    
+
     //now, for each marker,
     double modelview_matrix[16];
-    for (unsigned int m=0;m<TheMarkers.size();m++)
-    {
-        TheMarkers[m].glGetModelViewMatrix(modelview_matrix);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glLoadMatrixd(modelview_matrix);
-        axis(TheMarkerSize);
-	
-        glColor3f(1,0.4,0.4);
-        glTranslatef(0, TheMarkerSize/2,0);
-        glPushMatrix();
-        glutWireCube( TheMarkerSize );
+    glMatrixMode(GL_MODELVIEW);
+    
+    //Deepak Comment here
+    glPushMatrix();
+    vector<cv::Point2f> centers;
 
-        glPopMatrix();
-    }
+     for (unsigned int m=0;m<TheMarkers.size();m++)
+     {
+       	centers.push_back(TheMarkers[m].getCenter());
+	
+    //   	/*Deepak Comment: Begin
+	TheMarkers[m].glGetModelViewMatrix(modelview_matrix);
+	glLoadIdentity();
+	glLoadMatrixd(modelview_matrix);
+	axis(TheMarkerSize);
+	glColor3f(1,0.4,0.4);
+	glTranslatef(0, TheMarkerSize/2,0);
+	glPushMatrix();
+	glutWireCube( TheMarkerSize );
+	glPopMatrix();
+    // 	Deepak Comment: End*/
+     }
+
+
+   
     vector<float> ap;
     ap = calculateAreaAndPerimeter();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glRasterPos3f( 0, 0, 0 );
-    glColor3f(1,0,0);
-    char buffer[50];
-    cout<<ap[0]<<endl;
-    cout<<ap[1]<<endl;
-    int n = sprintf(buffer,"Area:%f Perimeter:%f\n",ap[0],ap[1]);
-    drawString(buffer);
-    glPopMatrix();
+
+    //glMatrixMode(GL_MODELVIEW);
+    //glPushMatrix();
+    // glLoadIdentity();
+    //glColor3f (1,0,1 );
+    //glutSolidTeapot(4);
+
+    if (centers.size() > 1){
+      //      for (int c = 0; c < 3; c++){
+      glColor3f(1,1,0);
+      //glTranslatef(centers[0].x,0.0f,centers[0].y);
+      glPushMatrix();
+      glLoadIdentity();
+      //    glTranslatef(0, TheMarkerSize/2,0);
+       glBegin(GL_LINES);
+      // //origin of the line
+      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
+      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
+       cv::Mat t0 = TheMarkers[0].Tvec;
+       cv::Mat t1 = TheMarkers[1].Tvec;
+       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+      glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+      // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
+       glEnd();
+      glutSolidTeapot(0.01);
+      glPopMatrix();
+     }
+
+
+      // }
+    //    glPopMatrix();
+
+    // glPushMatrix();
+    // glRasterPos3f( 0, 0, 0 );
+    // //    glTranslatef(30,10,0);
+    // glColor3f(1,0,0);
+    // char buffer[50];
+    // cout<<ap[0]<<endl;
+    // cout<<ap[1]<<endl;
+    // int n = sprintf(buffer,"Area:%f Perimeter:%f\n",ap[0],ap[1]);
+    // drawString(buffer);
+    // glPopMatrix();
+    // glPopMatrix();
+
+
+
+
     glutSwapBuffers();
 
 }
