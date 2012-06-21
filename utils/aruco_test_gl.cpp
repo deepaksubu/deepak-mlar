@@ -395,6 +395,7 @@ void vDrawScene()
        glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
        glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
        glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       
        // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
        glEnd();
        //glutSolidTeapot(0.01);
@@ -418,7 +419,7 @@ void vDrawScene()
        drawSideText(t0,t3);
        drawSideText(t0,t1);
        drawSideText(t1,t2);
-       drawSideTextArea(t0,t2,ap[0]);  
+       drawSideTextArea(t0,t2,ap[0]*100);  
        
     }
     else if (centers.size() == 3){
@@ -461,8 +462,8 @@ void vDrawScene()
        
        drawSideText(t0,t1);
        drawSideText(t1,t2);
-       //drawSideText(t0,t2);
-       drawSideTextArea(t0,t2,ap[0]);  
+       drawSideText(t0,t2);
+       drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
       
     }
 
