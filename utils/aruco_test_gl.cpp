@@ -93,8 +93,8 @@ int main(int argc,char **argv)
     {//parse arguments
         if (readArguments (argc,argv)==false) return 0;
         //read from camera
-	//deepak changed to 1 from 0
-        if (TheInputVideo=="live") TheVideoCapturer.open(1);
+	//Deepak changed to 1 from 0
+        if (TheInputVideo=="live") TheVideoCapturer.open(0);
         else TheVideoCapturer.open(TheInputVideo);
         if (!TheVideoCapturer.isOpened())
         {
@@ -202,7 +202,7 @@ vector<float> calculateAreaAndPerimeter(){
   vector<float> ap;
 
   
-  if (TheMarkers.size() <= 3) {
+  if (TheMarkers.size() <= 2) {
     ap.push_back(0);
     ap.push_back(0);
     return ap;
@@ -212,16 +212,34 @@ vector<float> calculateAreaAndPerimeter(){
   cv::Mat t1 = TheMarkers[1].Tvec;
   cv::Mat t2 = TheMarkers[2].Tvec;
 		
-  cv::Point2f c = TheMarkers[0].getCenter();
-  cout<<"center:"<<c<<endl;
+  //  cv::Point2f c = TheMarkers[0].getCenter();
+  //cout<<"center:"<<c<<endl;
+  //  cout<<"I am inside"<<endl;
 
   //If the input is a square
-  if (TheMarkers.size() == 4){
+  int sz =  TheMarkers.size();
+  cout<<"Size"<<sz<<endl;
+  
+  if (TheMarkers.size() == 4) {
     float length = calculateDistance(t0,t1);
     float width = calculateDistance(t1,t2);
     float area = length * width;
     float perimeter = 2*length + 2*width;
     ap.push_back(area); ap.push_back(perimeter);
+  }
+  //The input is a triangle
+  else if (TheMarkers.size() == 3){
+    
+    cout<<"I am inside"<<endl;
+    float side1 = calculateDistance(t0,t1);
+    float side2 = calculateDistance(t1,t2);
+    float side3 = calculateDistance(t0,t2);
+    float perimeter = side1 + side2 + side3;
+    float s = perimeter / 2;
+    float area = sqrt(s * (s - side1) * (s - side2) * (s - side3));
+    cout<<"This is intense shit"<<area<<endl;
+    ap.push_back(area); ap.push_back(perimeter);
+    
   }
   
   return ap;
@@ -237,6 +255,52 @@ void drawString(char* string){
     }
  
 }
+
+
+void drawSideText(cv::Mat t3,cv::Mat t2){
+    
+  float s = calculateDistance(t3,t2);
+  char buffer[50];
+  int n = sprintf(buffer,"%.0f\n",floor(s*100+0.5));
+
+  float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
+  float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
+  float z_bmid = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+
+  glPushMatrix();
+  glColor3f(0,0,1);
+  
+  
+  glLoadIdentity();
+  glTranslatef(x_bmid,y_bmid,z_bmid);
+  glRasterPos3f( 0.0f, 0.0f, 0.0f );
+  drawString(buffer);
+  glPopMatrix();
+  
+}
+
+void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
+    
+  //  float s = calculateDistance(t3,t2);
+  char buffer[50];
+  int n = sprintf(buffer,"%4.2f\n",floor(a*100+0.5));
+
+  float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
+  float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
+  float z_bmid = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+
+  glPushMatrix();
+  glColor3f(0,0,1);
+  
+  
+  glLoadIdentity();
+  glTranslatef(x_bmid,y_bmid,z_bmid);
+  glRasterPos3f( 0.0f, 0.0f, 0.0f);
+  drawString(buffer);
+  glPopMatrix();
+  
+}
+
 
 /************************************
  *
@@ -331,27 +395,124 @@ void vDrawScene()
        glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
        glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
        glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-      // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
+       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
        glEnd();
-      glutSolidTeapot(0.01);
-      glPopMatrix();
-     }
+       //glutSolidTeapot(0.01);
+       glPopMatrix();
+       
+       // glPushMatrix();
+       // glLoadIdentity();
+       // glColor3f(1,0,0);
+       // //glRasterPos3f( 0, 0, 0 );
+       
+       // //      glRotatef(90,0.0f,0.0f,1.0f);
+       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
+       //  glTranslatef(0,0,-t2.at<float>(2,0));
+       
+       
+       // glutSolidTeapot(0.05);
+       // glPopMatrix();
 
+       
+       drawSideText(t3,t2);
+       drawSideText(t0,t3);
+       drawSideText(t0,t1);
+       drawSideText(t1,t2);
+       drawSideTextArea(t0,t2,ap[0]);  
+       
+    }
+    else if (centers.size() == 3){
 
+      glColor3f(1,1,0);
+      //glTranslatef(centers[0].x,0.0f,centers[0].y);
+      glPushMatrix();
+      glLoadIdentity();
+      //    glTranslatef(0, TheMarkerSize/2,0);
+       glBegin(GL_TRIANGLES);
+      // //origin of the line
+      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
+      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
+       cv::Mat t0 = TheMarkers[0].Tvec;
+       cv::Mat t1 = TheMarkers[1].Tvec;
+       cv::Mat t2 = TheMarkers[2].Tvec;
+       //       cv::Mat t3 = TheMarkers[3].Tvec;
+       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+       //glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
+       glEnd();
+       //glutSolidTeapot(0.01);
+       glPopMatrix();
+       
+       // glPushMatrix();
+       // glLoadIdentity();
+       // glColor3f(1,0,0);
+       // //glRasterPos3f( 0, 0, 0 );
+       
+       // //      glRotatef(90,0.0f,0.0f,1.0f);
+       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
+       //  glTranslatef(0,0,-t2.at<float>(2,0));
+       
+       
+       // glutSolidTeapot(0.05);
+       // glPopMatrix();
+
+       
+       drawSideText(t0,t1);
+       drawSideText(t1,t2);
+       //drawSideText(t0,t2);
+       drawSideTextArea(t0,t2,ap[0]);  
+      
+    }
+
+    else if (centers.size() == 2){
+
+      glColor3f(1,1,0);
+      //glTranslatef(centers[0].x,0.0f,centers[0].y);
+      glPushMatrix();
+      glLoadIdentity();
+      //    glTranslatef(0, TheMarkerSize/2,0);
+       glBegin(GL_LINES);
+      // //origin of the line
+      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
+      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
+       cv::Mat t0 = TheMarkers[0].Tvec;
+       cv::Mat t1 = TheMarkers[1].Tvec;
+       //       cv::Mat t3 = TheMarkers[3].Tvec;
+       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+       //glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
+       glEnd();
+       //glutSolidTeapot(0.01);
+       glPopMatrix();
+       
+       // glPushMatrix();
+       // glLoadIdentity();
+       // glColor3f(1,0,0);
+       // //glRasterPos3f( 0, 0, 0 );
+       
+       // //      glRotatef(90,0.0f,0.0f,1.0f);
+       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
+       //  glTranslatef(0,0,-t2.at<float>(2,0));
+       
+       
+       // glutSolidTeapot(0.05);
+       // glPopMatrix();
+
+       
+       drawSideText(t0,t1);
+       //       drawSideTextArea(t0,t2,ap[0]);  
+      
+    }
+
+    
+    
       // }
     //    glPopMatrix();
 
-    // glPushMatrix();
-    // glRasterPos3f( 0, 0, 0 );
-    // //    glTranslatef(30,10,0);
-    // glColor3f(1,0,0);
-    // char buffer[50];
-    // cout<<ap[0]<<endl;
-    // cout<<ap[1]<<endl;
-    // int n = sprintf(buffer,"Area:%f Perimeter:%f\n",ap[0],ap[1]);
-    // drawString(buffer);
-    // glPopMatrix();
-    // glPopMatrix();
+     
 
 
 
