@@ -57,7 +57,21 @@ void vDrawScene();
 void vIdle();
 void vResize( GLsizei iWidth, GLsizei iHeight );
 void vMouse(int b,int s,int x,int y);
+void vKeyboard(unsigned char key,int x,int y);
 
+//Enumeration for modes
+enum Mode{
+  Free,
+  Triangle,
+  Grid,
+  Line
+};
+
+Mode mode;
+
+void init(){
+  mode = Free;
+}
 
 /************************************
  *
@@ -108,16 +122,18 @@ int main(int argc,char **argv)
         //read camera paramters if passed
         TheCameraParams.readFromXMLFile(TheIntrinsicFile);
         TheCameraParams.resize(TheInputImage.size());
-
+	init();
         glutInit(&argc, argv);
         glutInitWindowPosition( 0, 0);
         glutInitWindowSize(TheInputImage.size().width,TheInputImage.size().height);
         glutInitDisplayMode( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE );
         glutCreateWindow( "AruCo" );
+
         glutDisplayFunc( vDrawScene );
         glutIdleFunc( vIdle );
         glutReshapeFunc( vResize );
         glutMouseFunc(vMouse);
+	glutKeyboardFunc(vKeyboard);
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
         glClearDepth( 1.0 );
         TheGlWindowSize=TheInputImage.size();
@@ -129,6 +145,24 @@ int main(int argc,char **argv)
     {
         cout<<"Exception :"<<ex.what()<<endl;
     }
+
+}
+
+/************************************
+ *Mode Selection using Keyboard
+ *
+ *
+ *
+ ************************************/
+void vKeyboard(unsigned char key,int x,int y){
+  if (key == 't'){
+    mode = Triangle;
+    cout << "I am in the triangle exploration mode" << endl;
+  }
+  else {
+    mode = Free;
+    cout << "I am in the default free mode" << endl;
+  }
 
 }
 /************************************
@@ -237,7 +271,6 @@ vector<float> calculateAreaAndPerimeter(){
     float perimeter = side1 + side2 + side3;
     float s = perimeter / 2;
     float area = sqrt(s * (s - side1) * (s - side2) * (s - side3));
-    cout<<"This is intense shit"<<area<<endl;
     ap.push_back(area); ap.push_back(perimeter);
     
   }
@@ -301,6 +334,115 @@ void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
   
 }
 
+void triangleMode(vector<cv::Point2f> centers){
+  vector<float> ap;
+  ap = calculateAreaAndPerimeter();
+  
+  
+  
+  if (centers.size() == 3){
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+
+    glColor3f(1,1,0);
+    glPushMatrix();
+    glLoadIdentity();
+    
+    glBegin(GL_TRIANGLES);
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+    glEnd();
+
+    glColor3f(0,1,1);
+    
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-t1.at<float>(0,0),-t1.at<float>(1,0) ,-t1.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glEnd();
+
+    glPopMatrix();
+    
+    drawSideText(t0,t1);
+    drawSideText(t1,t2);
+    drawSideText(t0,t2);
+    drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
+
+    }
+}
+
+void freeMode(vector<cv::Point2f> centers){
+  
+    vector<float> ap;
+    ap = calculateAreaAndPerimeter();
+
+    if (centers.size() > 3){
+
+      glColor3f(1,1,0);
+      glPushMatrix();
+      glLoadIdentity();
+      glBegin(GL_QUADS);
+      cv::Mat t0 = TheMarkers[0].Tvec;
+      cv::Mat t1 = TheMarkers[1].Tvec;
+      cv::Mat t2 = TheMarkers[2].Tvec;
+      cv::Mat t3 = TheMarkers[3].Tvec;
+      glVertex3f(t3.at<float>(0,0),t3.at<float>(1,0) ,-t3.at<float>(2,0));
+      glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+      glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+      glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       
+      glEnd();
+      glPopMatrix();
+      
+      drawSideText(t3,t2);
+      drawSideText(t0,t3);
+      drawSideText(t0,t1);
+      drawSideText(t1,t2);
+      drawSideTextArea(t0,t2,ap[0]*100);  
+      
+    }
+    else if (centers.size() == 3){
+      
+      glColor3f(1,1,0);
+      glPushMatrix();
+      glLoadIdentity();
+       glBegin(GL_TRIANGLES);
+       cv::Mat t0 = TheMarkers[0].Tvec;
+       cv::Mat t1 = TheMarkers[1].Tvec;
+       cv::Mat t2 = TheMarkers[2].Tvec;
+       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+       glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+       glEnd();
+       glPopMatrix();
+       
+       drawSideText(t0,t1);
+       drawSideText(t1,t2);
+       drawSideText(t0,t2);
+       drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
+      
+    }
+
+    else if (centers.size() == 2){
+
+      glColor3f(1,1,0);
+      glPushMatrix();
+      glLoadIdentity();
+      glBegin(GL_LINES);
+      cv::Mat t0 = TheMarkers[0].Tvec;
+      cv::Mat t1 = TheMarkers[1].Tvec;
+      glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+      glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+      glEnd();
+      glPopMatrix();
+      drawSideText(t0,t1);
+      
+    }
+
+}
+
 
 /************************************
  *
@@ -348,11 +490,10 @@ void vDrawScene()
     glPushMatrix();
     vector<cv::Point2f> centers;
 
-     for (unsigned int m=0;m<TheMarkers.size();m++)
-     {
+    for (unsigned int m=0;m<TheMarkers.size();m++)
+      {
        	centers.push_back(TheMarkers[m].getCenter());
 	
-    //   	/*Deepak Comment: Begin
 	TheMarkers[m].glGetModelViewMatrix(modelview_matrix);
 	glLoadIdentity();
 	glLoadMatrixd(modelview_matrix);
@@ -362,164 +503,17 @@ void vDrawScene()
 	glPushMatrix();
 	glutWireCube( TheMarkerSize );
 	glPopMatrix();
-    // 	Deepak Comment: End*/
-     }
 
-
-   
-    vector<float> ap;
-    ap = calculateAreaAndPerimeter();
-
-    //glMatrixMode(GL_MODELVIEW);
-    //glPushMatrix();
-    // glLoadIdentity();
-    //glColor3f (1,0,1 );
-    //glutSolidTeapot(4);
-
-    if (centers.size() > 3){
-      //      for (int c = 0; c < 3; c++){
-      glColor3f(1,1,0);
-      //glTranslatef(centers[0].x,0.0f,centers[0].y);
-      glPushMatrix();
-      glLoadIdentity();
-      //    glTranslatef(0, TheMarkerSize/2,0);
-       glBegin(GL_QUADS);
-      // //origin of the line
-      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
-      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
-       cv::Mat t0 = TheMarkers[0].Tvec;
-       cv::Mat t1 = TheMarkers[1].Tvec;
-       cv::Mat t2 = TheMarkers[2].Tvec;
-       cv::Mat t3 = TheMarkers[3].Tvec;
-       glVertex3f(t3.at<float>(0,0),t3.at<float>(1,0) ,-t3.at<float>(2,0));
-       glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
-       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
-       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-       
-       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
-       glEnd();
-       //glutSolidTeapot(0.01);
-       glPopMatrix();
-       
-       // glPushMatrix();
-       // glLoadIdentity();
-       // glColor3f(1,0,0);
-       // //glRasterPos3f( 0, 0, 0 );
-       
-       // //      glRotatef(90,0.0f,0.0f,1.0f);
-       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
-       //  glTranslatef(0,0,-t2.at<float>(2,0));
-       
-       
-       // glutSolidTeapot(0.05);
-       // glPopMatrix();
-
-       
-       drawSideText(t3,t2);
-       drawSideText(t0,t3);
-       drawSideText(t0,t1);
-       drawSideText(t1,t2);
-       drawSideTextArea(t0,t2,ap[0]*100);  
-       
-    }
-    else if (centers.size() == 3){
-
-      glColor3f(1,1,0);
-      //glTranslatef(centers[0].x,0.0f,centers[0].y);
-      glPushMatrix();
-      glLoadIdentity();
-      //    glTranslatef(0, TheMarkerSize/2,0);
-       glBegin(GL_TRIANGLES);
-      // //origin of the line
-      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
-      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
-       cv::Mat t0 = TheMarkers[0].Tvec;
-       cv::Mat t1 = TheMarkers[1].Tvec;
-       cv::Mat t2 = TheMarkers[2].Tvec;
-       //       cv::Mat t3 = TheMarkers[3].Tvec;
-       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-       glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
-       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
-       //glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
-       glEnd();
-       //glutSolidTeapot(0.01);
-       glPopMatrix();
-       
-       // glPushMatrix();
-       // glLoadIdentity();
-       // glColor3f(1,0,0);
-       // //glRasterPos3f( 0, 0, 0 );
-       
-       // //      glRotatef(90,0.0f,0.0f,1.0f);
-       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
-       //  glTranslatef(0,0,-t2.at<float>(2,0));
-       
-       
-       // glutSolidTeapot(0.05);
-       // glPopMatrix();
-
-       
-       drawSideText(t0,t1);
-       drawSideText(t1,t2);
-       drawSideText(t0,t2);
-       drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
-      
-    }
-
-    else if (centers.size() == 2){
-
-      glColor3f(1,1,0);
-      //glTranslatef(centers[0].x,0.0f,centers[0].y);
-      glPushMatrix();
-      glLoadIdentity();
-      //    glTranslatef(0, TheMarkerSize/2,0);
-       glBegin(GL_LINES);
-      // //origin of the line
-      // cout<<"The Marker Size:"<<TheMarkerSize<<endl;
-      // //      glVertex3f(TheMarkerSize/2, TheMarkerSize/2,TheMarkerSize/2);//ending point of the line
-       cv::Mat t0 = TheMarkers[0].Tvec;
-       cv::Mat t1 = TheMarkers[1].Tvec;
-       //       cv::Mat t3 = TheMarkers[3].Tvec;
-       glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-       glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
-       //glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
-       // glVertex3f(3.0f, 3.0f,3.0f);//ending point of the line
-       glEnd();
-       //glutSolidTeapot(0.01);
-       glPopMatrix();
-       
-       // glPushMatrix();
-       // glLoadIdentity();
-       // glColor3f(1,0,0);
-       // //glRasterPos3f( 0, 0, 0 );
-       
-       // //      glRotatef(90,0.0f,0.0f,1.0f);
-       // // glTranslatef(t2.at<float>(0,0),t2.at<float>(1,0),-t2.at<float>(2,0));
-       //  glTranslatef(0,0,-t2.at<float>(2,0));
-       
-       
-       // glutSolidTeapot(0.05);
-       // glPopMatrix();
-
-       
-       drawSideText(t0,t1);
-       //       drawSideTextArea(t0,t2,ap[0]);  
-      
-    }
-
+      }
     
-    
-      // }
-    //    glPopMatrix();
-
-     
-
-
-
+    if ( mode == Free){
+      freeMode(centers);
+    } else if (mode == Triangle){
+      triangleMode(centers);
+    }
 
     glutSwapBuffers();
-
+    
 }
 
 
