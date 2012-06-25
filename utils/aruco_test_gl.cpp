@@ -108,7 +108,7 @@ int main(int argc,char **argv)
         if (readArguments (argc,argv)==false) return 0;
         //read from camera
 	//Deepak changed to 1 from 0
-        if (TheInputVideo=="live") TheVideoCapturer.open(0);
+        if (TheInputVideo=="live") TheVideoCapturer.open(1);
         else TheVideoCapturer.open(TheInputVideo);
         if (!TheVideoCapturer.isOpened())
         {
@@ -232,15 +232,9 @@ float calculateDistance(cv::Mat t0,cv::Mat t1){
   
 }
 
-vector<float> calculateAreaAndPerimeter(){
-  vector<float> ap;
+float calculateArea(){
+  float area = 0;
 
-  
-  if (TheMarkers.size() <= 2) {
-    ap.push_back(0);
-    ap.push_back(0);
-    return ap;
-  }
   
   cv::Mat t0 = TheMarkers[0].Tvec;
   cv::Mat t1 = TheMarkers[1].Tvec;
@@ -252,30 +246,30 @@ vector<float> calculateAreaAndPerimeter(){
 
   //If the input is a square
   int sz =  TheMarkers.size();
-  cout<<"Size"<<sz<<endl;
+  //cout<<"Size"<<sz<<endl;
   
   if (TheMarkers.size() == 4) {
     float length = calculateDistance(t0,t1);
     float width = calculateDistance(t1,t2);
-    float area = length * width;
-    float perimeter = 2*length + 2*width;
-    ap.push_back(area); ap.push_back(perimeter);
+    area = length * width;
+    //float perimeter = 2*length + 2*width;
+    //ap[0] = area;
   }
   //The input is a triangle
   else if (TheMarkers.size() == 3){
     
-    cout<<"I am inside"<<endl;
+    //cout<<"I am inside"<<endl;
     float side1 = calculateDistance(t0,t1);
     float side2 = calculateDistance(t1,t2);
     float side3 = calculateDistance(t0,t2);
     float perimeter = side1 + side2 + side3;
     float s = perimeter / 2;
-    float area = sqrt(s * (s - side1) * (s - side2) * (s - side3));
-    ap.push_back(area); ap.push_back(perimeter);
+    area = sqrt(s * (s - side1) * (s - side2) * (s - side3));
+    //ap.push_back(area); ap.push_back(perimeter);
     
   }
   
-  return ap;
+  return area;
   
 }
 
@@ -335,8 +329,8 @@ void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
 }
 
 void triangleMode(vector<cv::Point2f> centers){
-  vector<float> ap;
-  ap = calculateAreaAndPerimeter();
+  float ap;
+  ap = calculateArea();
   
   
   
@@ -368,18 +362,18 @@ void triangleMode(vector<cv::Point2f> centers){
     drawSideText(t0,t1);
     drawSideText(t1,t2);
     drawSideText(t0,t2);
-    drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
+    drawSideTextArea(t0,(t1+t2)/2,ap * 100);  
 
     }
 }
 
 void freeMode(vector<cv::Point2f> centers){
   
-    vector<float> ap;
-    ap = calculateAreaAndPerimeter();
+    float ap = 0;
+   
 
-    if (centers.size() > 3){
-
+    if (centers.size() == 4){
+      ap = calculateArea();
       glColor3f(1,1,0);
       glPushMatrix();
       glLoadIdentity();
@@ -400,7 +394,7 @@ void freeMode(vector<cv::Point2f> centers){
       drawSideText(t0,t3);
       drawSideText(t0,t1);
       drawSideText(t1,t2);
-      drawSideTextArea(t0,t2,ap[0]*100);  
+      drawSideTextArea(t0,t2,ap*100);  
       
     }
     else if (centers.size() == 3){
@@ -418,10 +412,11 @@ void freeMode(vector<cv::Point2f> centers){
        glEnd();
        glPopMatrix();
        
-       drawSideText(t0,t1);
-       drawSideText(t1,t2);
-       drawSideText(t0,t2);
-       drawSideTextArea(t0,(t1+t2)/2,ap[0] * 100);  
+        drawSideText(t0,t1);
+        drawSideText(t1,t2);
+        drawSideText(t0,t2);
+        drawSideTextArea(t0,(t1+t2)/2,ap * 100);
+       
       
     }
 
