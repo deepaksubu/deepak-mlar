@@ -158,6 +158,9 @@ void vKeyboard(unsigned char key,int x,int y){
   if (key == 't'){
     mode = Triangle;
     cout << "I am in the triangle exploration mode" << endl;
+  } else if (key == 'g'){
+    mode = Grid;
+    cout << "I am in the grid mode" << endl;
   }
   else {
     mode = Free;
@@ -367,6 +370,71 @@ void triangleMode(vector<cv::Point2f> centers){
     }
 }
 
+void gridMode(vector<cv::Point2f> centers){
+  float ap;
+ 
+
+  if (centers.size() == 4){
+    ap = calculateArea();  
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+    cv::Mat t3 = TheMarkers[3].Tvec;
+
+    GLfloat grid2x2[12] = {
+      t0.at<float>(0,0), t0.at<float>(1,0), -t0.at<float>(2,0), t1.at<float>(0,0), t1.at<float>(1,0), -t1.at<float>(2,0),
+      t3.at<float>(0,0), t3.at<float>(1,0), -t3.at<float>(2,0), t2.at<float>(0,0), t2.at<float>(1,0), -t2.at<float>(2,0)
+    };
+    
+    glPushMatrix();
+    glLoadIdentity();
+    glColor3f(1,0,0);
+
+    float unit = 0.002;
+
+    glEnable(GL_MAP2_VERTEX_3);
+    glMap2f(GL_MAP2_VERTEX_3,
+	    0.0, 1.0,  /* U ranges 0..1 */
+	    3,         /* U stride, 3 floats per coord */
+	    2,         /* U is 2nd order, ie. linear */
+	    0.0, 1.0,  /* V ranges 0..1 */
+	    2 * 3,     /* V stride, row is 2 coords, 3 floats per coord */
+	    2,         /* V is 2nd order, ie linear */
+	    grid2x2);  /* control points */
+
+
+    
+    int rows = ceil (abs(t0.at<float>(1,0) - t3.at<float>(1,0))/unit);
+    int columns = ceil (abs(t0.at<float>(0,0) - t1.at<float>(0,0))/unit);
+ 
+    glMapGrid2f(
+		rows, 0.0, 1.0,
+		columns, 0.0, 1.0);
+   
+    glEvalMesh2(GL_LINE,
+	      0, rows,   /* Starting at 0 mesh 5 steps (rows). */
+	      0, columns);  /* Starting at 0 mesh 6 steps (columns). */
+     // glBegin(GL_LINES);
+     
+     // cout<< "No of rows:" << rows << "No of columns" << columns << endl;
+     // for(int i = 0; i < rows; i ++) {
+     // glVertex3f(t0.at<float>(0,0), t0.at<float>(1,0) + i * unit, -t0.at<float>(2,0));
+     // glVertex3f(t1.at<float>(0,0), t1.at<float>(1,0) + i * unit, -t1.at<float>(2,0));
+
+     // }
+
+     //  for(int i = 0; i < columns; i ++) {
+     // 	glVertex3f(t0.at<float>(0,0) + i*unit, t0.at<float>(1,0), -t0.at<float>(2,0));
+     // 	glVertex3f(t3.at<float>(0,0) + i*unit, t3.at<float>(1,0), -t3.at<float>(2,0));
+
+     //  }
+     
+     // glEnd();
+     glPopMatrix();
+
+    }
+}
+
 void freeMode(vector<cv::Point2f> centers){
   
     float ap = 0;
@@ -505,7 +573,10 @@ void vDrawScene()
       freeMode(centers);
     } else if (mode == Triangle){
       triangleMode(centers);
+    } else if (mode == Grid){
+      gridMode(centers);
     }
+    
 
     glutSwapBuffers();
     
