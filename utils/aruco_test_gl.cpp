@@ -59,6 +59,8 @@ void vResize( GLsizei iWidth, GLsizei iHeight );
 void vMouse(int b,int s,int x,int y);
 void vKeyboard(unsigned char key,int x,int y);
 
+//void lineMode(cv::<Point2f> center);
+
 //Enumeration for modes
 enum Mode{
   Free,
@@ -161,6 +163,9 @@ void vKeyboard(unsigned char key,int x,int y){
   } else if (key == 'g'){
     mode = Grid;
     cout << "I am in the grid mode" << endl;
+  } else if (key == 'l'){
+    mode = Line;
+    cout << "I am in the line mode" << endl;
   }
   else {
     mode = Free;
@@ -309,6 +314,29 @@ void drawSideText(cv::Mat t3,cv::Mat t2){
   
 }
 
+void drawSideTextTranslate(cv::Mat t3,cv::Mat t2, float unit){
+    
+  float s = calculateDistance(t3,t2);
+  char buffer[50];
+  int n = sprintf(buffer,"%.0f\n",floor(s*100+0.5));
+
+  float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
+  float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
+  float z_bmid = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+
+  glPushMatrix();
+  glColor3f(0,0,1);
+  
+  
+  glLoadIdentity();
+  glTranslatef(x_bmid,y_bmid + unit,z_bmid);
+  glRasterPos3f( 0.0f, 0.0f, 0.0f );
+  drawString(buffer);
+  glPopMatrix();
+  
+}
+
+
 void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
     
   //  float s = calculateDistance(t3,t2);
@@ -370,6 +398,45 @@ void triangleMode(vector<cv::Point2f> centers){
     }
 }
 
+
+void lineMode(vector<cv::Point2f> centers){
+  
+  
+  if (centers.size() == 3){
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+
+    glPushMatrix();
+    glLoadIdentity();
+    glBegin(GL_LINES);
+    
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+
+    glEnd();
+    
+    glTranslatef(0.0f,-0.03f,0.0f);
+    
+    glBegin(GL_LINES);
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+    glEnd();
+
+    glPopMatrix();
+    
+    
+    drawSideText(t0,t1);
+    drawSideText(t1,t2);
+    drawSideTextTranslate(t0,t2,-0.02);
+    
+  }
+  
+}
+
 void gridMode(vector<cv::Point2f> centers){
   float ap;
  
@@ -390,7 +457,7 @@ void gridMode(vector<cv::Point2f> centers){
     glLoadIdentity();
     glColor3f(1,0,0);
 
-    float unit = 0.002;
+    float unit = 0.005;
 
     glEnable(GL_MAP2_VERTEX_3);
     glMap2f(GL_MAP2_VERTEX_3,
@@ -407,32 +474,62 @@ void gridMode(vector<cv::Point2f> centers){
     int rows = ceil (abs(t0.at<float>(1,0) - t3.at<float>(1,0))/unit);
     int columns = ceil (abs(t0.at<float>(0,0) - t1.at<float>(0,0))/unit);
  
-    glMapGrid2f(
-		rows, 0.0, 1.0,
+    glMapGrid2f(rows, 0.0, 1.0,
 		columns, 0.0, 1.0);
    
     glEvalMesh2(GL_LINE,
 	      0, rows,   /* Starting at 0 mesh 5 steps (rows). */
 	      0, columns);  /* Starting at 0 mesh 6 steps (columns). */
-     // glBegin(GL_LINES);
-     
-     // cout<< "No of rows:" << rows << "No of columns" << columns << endl;
-     // for(int i = 0; i < rows; i ++) {
-     // glVertex3f(t0.at<float>(0,0), t0.at<float>(1,0) + i * unit, -t0.at<float>(2,0));
-     // glVertex3f(t1.at<float>(0,0), t1.at<float>(1,0) + i * unit, -t1.at<float>(2,0));
+    
+    glPopMatrix();
+    
+  } else if (centers.size() == 3){
 
-     // }
+    ap = calculateArea();  
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+    
 
-     //  for(int i = 0; i < columns; i ++) {
-     // 	glVertex3f(t0.at<float>(0,0) + i*unit, t0.at<float>(1,0), -t0.at<float>(2,0));
-     // 	glVertex3f(t3.at<float>(0,0) + i*unit, t3.at<float>(1,0), -t3.at<float>(2,0));
+    GLfloat grid2x2[12] = {
+      t0.at<float>(0,0), t0.at<float>(1,0), -t0.at<float>(2,0), t1.at<float>(0,0), t1.at<float>(1,0), -t1.at<float>(2,0),
+      t2.at<float>(0,0), t2.at<float>(1,0), -t2.at<float>(2,0), t2.at<float>(0,0), t2.at<float>(1,0), -t2.at<float>(2,0)
+    };
+    
+    glPushMatrix();
+    glLoadIdentity();
+    glColor3f(1,0,0);
 
-     //  }
-     
-     // glEnd();
-     glPopMatrix();
+    float unit = 0.005;
 
-    }
+    glEnable(GL_MAP2_VERTEX_3);
+    glMap2f(GL_MAP2_VERTEX_3,
+	    0.0, 1.0,  /* U ranges 0..1 */
+	    3,         /* U stride, 3 floats per coord */
+	    2,         /* U is 2nd order, ie. linear */
+	    0.0, 1.0,  /* V ranges 0..1 */
+	    2 * 3,     /* V stride, row is 2 coords, 3 floats per coord */
+	    2,         /* V is 2nd order, ie linear */
+	    grid2x2);  /* control points */
+
+
+    
+    int rows = ceil (abs(t1.at<float>(1,0) - t2.at<float>(1,0))/unit);
+    int columns = ceil (abs(t0.at<float>(0,0) - t1.at<float>(0,0))/unit);
+ 
+    glMapGrid2f(rows, 0.0, 1.0,
+		columns, 0.0, 1.0);
+   
+    glEvalMesh2(GL_LINE,
+	      0, rows,   /* Starting at 0 mesh 5 steps (rows). */
+	      0, columns);  /* Starting at 0 mesh 6 steps (columns). */
+    
+    glPopMatrix();
+    
+    
+  }
+
+  
 }
 
 void freeMode(vector<cv::Point2f> centers){
@@ -480,10 +577,10 @@ void freeMode(vector<cv::Point2f> centers){
        glEnd();
        glPopMatrix();
        
-        drawSideText(t0,t1);
-        drawSideText(t1,t2);
-        drawSideText(t0,t2);
-        drawSideTextArea(t0,(t1+t2)/2,ap * 100);
+       drawSideText(t0,t1);
+       drawSideText(t1,t2);
+       drawSideText(t0,t2);
+       drawSideTextArea(t0,(t1+t2)/2,ap * 100);
        
       
     }
@@ -544,7 +641,7 @@ void vDrawScene()
     glLoadMatrixd(proj_matrix);
 
     
-
+    
     //now, for each marker,
     double modelview_matrix[16];
     glMatrixMode(GL_MODELVIEW);
@@ -575,7 +672,10 @@ void vDrawScene()
       triangleMode(centers);
     } else if (mode == Grid){
       gridMode(centers);
+    } else if (mode == Line){
+      lineMode(centers);
     }
+    
     
 
     glutSwapBuffers();
