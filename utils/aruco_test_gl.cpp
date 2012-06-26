@@ -482,6 +482,12 @@ void gridMode(vector<cv::Point2f> centers){
 	      0, columns);  /* Starting at 0 mesh 6 steps (columns). */
     
     glPopMatrix();
+
+    drawSideText(t3,t2);
+    drawSideText(t0,t3);
+    drawSideText(t0,t1);
+    drawSideText(t1,t2);
+    drawSideTextArea(t0,t2,ap*100);
     
   } else if (centers.size() == 3){
 
@@ -526,6 +532,11 @@ void gridMode(vector<cv::Point2f> centers){
     
     glPopMatrix();
     
+    drawSideText(t0,t1);
+    drawSideText(t1,t2);
+    drawSideText(t0,t2);
+    drawSideTextArea(t0,(t1+t2)/2,ap * 100);
+      
     
   }
 
