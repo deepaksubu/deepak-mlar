@@ -362,13 +362,17 @@ void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
 void triangleMode(vector<cv::Point2f> centers){
   float ap;
   ap = calculateArea();
-  
+  float length = 0;
+  float height = 0;
   
   
   if (centers.size() == 3){
     cv::Mat t0 = TheMarkers[0].Tvec;
     cv::Mat t1 = TheMarkers[1].Tvec;
     cv::Mat t2 = TheMarkers[2].Tvec;
+    
+    length = calculateDistance(t2,t1);
+    height = calculateDistance(t0,t2);
 
     glColor3f(1,1,0);
     glPushMatrix();
@@ -383,9 +387,10 @@ void triangleMode(vector<cv::Point2f> centers){
     glColor3f(0,1,1);
     
     glBegin(GL_TRIANGLES);
-    glVertex3f(-t1.at<float>(0,0),-t1.at<float>(1,0) ,-t1.at<float>(2,0));
-    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
     glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0) + length,t2.at<float>(1,0) - height ,-t2.at<float>(2,0));
+   
     glEnd();
 
     glPopMatrix();
