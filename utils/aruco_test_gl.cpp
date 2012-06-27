@@ -406,6 +406,7 @@ void triangleMode(vector<cv::Point2f> centers){
 
 void lineMode(vector<cv::Point2f> centers){
   
+  float translateDistance = 0.15;
   
   if (centers.size() == 3){
     cv::Mat t0 = TheMarkers[0].Tvec;
@@ -414,6 +415,7 @@ void lineMode(vector<cv::Point2f> centers){
 
     glPushMatrix();
     glLoadIdentity();
+    glColor3f(1,1,0);
     glBegin(GL_LINES);
     
     glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
@@ -424,7 +426,7 @@ void lineMode(vector<cv::Point2f> centers){
 
     glEnd();
     
-    glTranslatef(0.0f,-0.03f,0.0f);
+    glTranslatef(0.0f,translateDistance,0.0f);
     
     glBegin(GL_LINES);
     glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
@@ -436,7 +438,7 @@ void lineMode(vector<cv::Point2f> centers){
     
     drawSideText(t0,t1);
     drawSideText(t1,t2);
-    drawSideTextTranslate(t0,t2,-0.02);
+    drawSideTextTranslate(t0,t2,translateDistance);
     
   }
   
