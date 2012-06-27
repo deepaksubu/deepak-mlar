@@ -346,7 +346,7 @@ void drawSideTextTranslate(cv::Mat t3,cv::Mat t2, float unit){
 }
 
 
-void drawSideTextArea(vector<cv::Point2f> centers){
+void drawArea(vector<cv::Point2f> centers){
     
 
   float area = calculateArea();
@@ -364,9 +364,9 @@ void drawSideTextArea(vector<cv::Point2f> centers){
     cv::Mat t2 = TheMarkers[2].Tvec;
     cv::Mat t3 = TheMarkers[3].Tvec;
 
-     x_area = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
-     y_area = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
-     z_area = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+     x_area = (t3.at<float>(0,0) + t1.at<float>(0,0))/2;
+     y_area = (t3.at<float>(1,0) + t1.at<float>(1,0))/2;
+     z_area = (-t3.at<float>(2,0) - t1.at<float>(2,0))/2;
   
   } else if (centers.size() == 3){
     
@@ -378,7 +378,7 @@ void drawSideTextArea(vector<cv::Point2f> centers){
     y_area = (t0.at<float>(1,0) + t1.at<float>(1,0) + t2.at<float>(1,0))/3;
     z_area = (-t0.at<float>(2,0) - t1.at<float>(2,0) - t2.at<float>(2,0))/3;
     
-    cout << "Here in free mode" <<endl;
+ 
   }
 
   
@@ -430,7 +430,7 @@ void triangleMode(vector<cv::Point2f> centers){
     drawSideText(t0,t1);
     drawSideText(t1,t2);
     drawSideText(t0,t2);
-    drawSideTextArea(centers);  
+    drawArea(centers);  
 
   }
 }
@@ -526,7 +526,7 @@ void gridMode(vector<cv::Point2f> centers){
     drawSideText(t0,t3);
     drawSideText(t0,t1);
     drawSideText(t1,t2);
-    drawSideTextArea(centers);
+    drawArea(centers);
     
   } else if (centers.size() == 3){
 
@@ -574,7 +574,7 @@ void gridMode(vector<cv::Point2f> centers){
     drawSideText(t0,t1);
     drawSideText(t1,t2);
     drawSideText(t0,t2);
-    drawSideTextArea(centers);
+    drawArea(centers);
       
     
   }
@@ -609,7 +609,7 @@ void freeMode(vector<cv::Point2f> centers){
       drawSideText(t0,t3);
       drawSideText(t0,t1);
       drawSideText(t1,t2);
-      drawSideTextArea(centers);  
+      drawArea(centers);  
       
     }
     else if (centers.size() == 3){
@@ -630,7 +630,7 @@ void freeMode(vector<cv::Point2f> centers){
        drawSideText(t0,t1);
        drawSideText(t1,t2);
        drawSideText(t0,t2);
-       drawSideTextArea(centers);
+       drawArea(centers);
        
       
     }
@@ -716,17 +716,47 @@ void vDrawScene()
 
       }
     
-    if ( mode == Free){
+    char textString[100] = "Free Mode";
+    char unitString[100] = "Metric Units";
+     if ( mode == Free){
+      
       freeMode(centers);
+      int a = sprintf(textString,"%s","Free Mode");
+
     } else if (mode == Triangle){
+
       triangleMode(centers);
+      int a = sprintf(textString,"%s","Triangle Exploration Mode");
+   
+
     } else if (mode == Grid){
+
+     
+ int a = sprintf(textString,"%s","Grid Mode");
       gridMode(centers);
+
     } else if (mode == Line){
+       int a = sprintf(textString,"%s","Line Mode");
       lineMode(centers);
+
     }
     
+     int m =sprintf(unitString,"%s",imperialUnitFlag?"Imperial Units":"Metric Units");
     
+    if (centers.size() > 0){
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    float yTranslate = -0.1f;
+    float xTranslate = -0.1f;
+    glPushMatrix();
+    glLoadIdentity();
+    glColor4f(1.0f,0.0f,0.0f,0.5f);
+    glTranslatef(t0.at<float>(0,0) + xTranslate,t0.at<float>(1,0)+yTranslate,-t0.at<float>(2,0));
+    glRasterPos3f( 0.0f,0.0f,0.0f );
+    char buffer[100];
+    int n = sprintf(buffer,"%s \n%s",textString,unitString);
+    drawString(buffer);
+    glPopMatrix();  
+    }
 
     glutSwapBuffers();
     
