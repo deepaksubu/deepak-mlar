@@ -69,6 +69,10 @@ enum Mode{
   Line
 };
 
+bool imperialUnitFlag = false;
+float M2CM = 100.0f;
+float M2IN = 39.3700787f;
+
 Mode mode;
 
 void init(){
@@ -166,6 +170,8 @@ void vKeyboard(unsigned char key,int x,int y){
   } else if (key == 'l'){
     mode = Line;
     cout << "I am in the line mode" << endl;
+  } else if (key == 'u'){
+    imperialUnitFlag = !imperialUnitFlag;
   }
   else {
     mode = Free;
@@ -217,6 +223,10 @@ void axis(float size)
 
 
 }
+
+void convertDistance(float *distance){
+  *distance = imperialUnitFlag?(M2IN**distance):(M2CM**distance);
+}
 /**********************************************************
  *Calculate the distance between two points expressed as cv matrices
  *Finished by deepak
@@ -229,13 +239,17 @@ float calculateDistance(cv::Mat t0,cv::Mat t1){
   float d[3];
   float distsquared = 0;
   float distance = 0;
+  
   for (int i = 0; i < 3; i++){
     d[i] = (t0.at<float>(i,0) - t1.at<float>(i,0)); 
     distsquared = distsquared + d[i] * d[i];   
   }
   
   distance = sqrt(distsquared);
-  
+
+  //metric or imperial
+  convertDistance(&distance);
+    
   return distance;
   
 }
@@ -248,14 +262,11 @@ float calculateArea(){
   cv::Mat t1 = TheMarkers[1].Tvec;
   cv::Mat t2 = TheMarkers[2].Tvec;
 		
-  //  cv::Point2f c = TheMarkers[0].getCenter();
-  //cout<<"center:"<<c<<endl;
-  //  cout<<"I am inside"<<endl;
 
-  //If the input is a square
+
   int sz =  TheMarkers.size();
-  //cout<<"Size"<<sz<<endl;
-  
+
+  //If the input is a square  
   if (TheMarkers.size() == 4) {
     float length = calculateDistance(t0,t1);
     float width = calculateDistance(t1,t2);
@@ -266,15 +277,13 @@ float calculateArea(){
   //The input is a triangle
   else if (TheMarkers.size() == 3){
     
-    //cout<<"I am inside"<<endl;
     float side1 = calculateDistance(t0,t1);
     float side2 = calculateDistance(t1,t2);
     float side3 = calculateDistance(t0,t2);
     float perimeter = side1 + side2 + side3;
     float s = perimeter / 2;
     area = sqrt(s * (s - side1) * (s - side2) * (s - side3));
-    //ap.push_back(area); ap.push_back(perimeter);
-    
+        
   }
   
   return area;
@@ -296,7 +305,7 @@ void drawSideText(cv::Mat t3,cv::Mat t2){
     
   float s = calculateDistance(t3,t2);
   char buffer[50];
-  int n = sprintf(buffer,"%.0f\n",floor(s*100+0.5));
+  int n = sprintf(buffer,"%.0f\n",floor(s+0.5));
 
   float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
   float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
@@ -318,7 +327,7 @@ void drawSideTextTranslate(cv::Mat t3,cv::Mat t2, float unit){
     
   float s = calculateDistance(t3,t2);
   char buffer[50];
-  int n = sprintf(buffer,"%.0f\n",floor(s*100+0.5));
+  int n = sprintf(buffer,"%.0f\n",floor(s+0.5));
 
   float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
   float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
@@ -337,22 +346,47 @@ void drawSideTextTranslate(cv::Mat t3,cv::Mat t2, float unit){
 }
 
 
-void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
+void drawSideTextArea(vector<cv::Point2f> centers){
     
-  //  float s = calculateDistance(t3,t2);
+
+  float area = calculateArea();
   char buffer[50];
-  int n = sprintf(buffer,"%4.2f\n",floor(a*100+0.5));
+  int n = sprintf(buffer,"%4.1f\n",floor(area+0.5));
 
-  float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
-  float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
-  float z_bmid = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+  float x_area = 0;
+  float y_area = 0;
+  float z_area = 0;
+  
+  if (centers.size() == 4){
 
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+    cv::Mat t3 = TheMarkers[3].Tvec;
+
+     x_area = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
+     y_area = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
+     z_area = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+  
+  } else if (centers.size() == 3){
+    
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+
+    x_area = (t0.at<float>(0,0) + t1.at<float>(0,0) + t2.at<float>(0,0))/3;
+    y_area = (t0.at<float>(1,0) + t1.at<float>(1,0) + t2.at<float>(1,0))/3;
+    z_area = (-t0.at<float>(2,0) - t1.at<float>(2,0) - t2.at<float>(2,0))/3;
+    
+    cout << "Here in free mode" <<endl;
+  }
+
+  
   glPushMatrix();
   glColor3f(0,0,1);
   
-  
   glLoadIdentity();
-  glTranslatef(x_bmid,y_bmid,z_bmid);
+  glTranslatef(x_area,y_area,z_area);
   glRasterPos3f( 0.0f, 0.0f, 0.0f);
   drawString(buffer);
   glPopMatrix();
@@ -360,8 +394,6 @@ void drawSideTextArea(cv::Mat t3,cv::Mat t2, float a){
 }
 
 void triangleMode(vector<cv::Point2f> centers){
-  float ap;
-  ap = calculateArea();
   float length = 0;
   float height = 0;
   
@@ -398,9 +430,9 @@ void triangleMode(vector<cv::Point2f> centers){
     drawSideText(t0,t1);
     drawSideText(t1,t2);
     drawSideText(t0,t2);
-    drawSideTextArea(t0,(t1+t2)/2,ap * 100);  
+    drawSideTextArea(centers);  
 
-    }
+  }
 }
 
 
@@ -449,7 +481,7 @@ void gridMode(vector<cv::Point2f> centers){
  
 
   if (centers.size() == 4){
-    ap = calculateArea();  
+  
     cv::Mat t0 = TheMarkers[0].Tvec;
     cv::Mat t1 = TheMarkers[1].Tvec;
     cv::Mat t2 = TheMarkers[2].Tvec;
@@ -494,11 +526,11 @@ void gridMode(vector<cv::Point2f> centers){
     drawSideText(t0,t3);
     drawSideText(t0,t1);
     drawSideText(t1,t2);
-    drawSideTextArea(t0,t2,ap*100);
+    drawSideTextArea(centers);
     
   } else if (centers.size() == 3){
 
-    ap = calculateArea();  
+   
     cv::Mat t0 = TheMarkers[0].Tvec;
     cv::Mat t1 = TheMarkers[1].Tvec;
     cv::Mat t2 = TheMarkers[2].Tvec;
@@ -542,7 +574,7 @@ void gridMode(vector<cv::Point2f> centers){
     drawSideText(t0,t1);
     drawSideText(t1,t2);
     drawSideText(t0,t2);
-    drawSideTextArea(t0,(t1+t2)/2,ap * 100);
+    drawSideTextArea(centers);
       
     
   }
@@ -556,7 +588,7 @@ void freeMode(vector<cv::Point2f> centers){
    
 
     if (centers.size() == 4){
-      ap = calculateArea();
+ 
       glColor3f(1,1,0);
       glPushMatrix();
       glLoadIdentity();
@@ -577,11 +609,11 @@ void freeMode(vector<cv::Point2f> centers){
       drawSideText(t0,t3);
       drawSideText(t0,t1);
       drawSideText(t1,t2);
-      drawSideTextArea(t0,t2,ap*100);  
+      drawSideTextArea(centers);  
       
     }
     else if (centers.size() == 3){
-      
+   
       glColor3f(1,1,0);
       glPushMatrix();
       glLoadIdentity();
@@ -598,7 +630,7 @@ void freeMode(vector<cv::Point2f> centers){
        drawSideText(t0,t1);
        drawSideText(t1,t2);
        drawSideText(t0,t2);
-       drawSideTextArea(t0,(t1+t2)/2,ap * 100);
+       drawSideTextArea(centers);
        
       
     }
