@@ -1,3 +1,9 @@
 This contains the code for the Mobile Learning project which is being undertaken at the School of Information in UC Berkeley.
 
 The main library used is ARUCO for Augmented Reality which is based on OpenCV. 
+
+
+Go to ~/development/deepak-mlar/
+go to build-new2
+run make
+

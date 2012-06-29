@@ -337,7 +337,12 @@ void drawSideText(cv::Mat t3,cv::Mat t2){
     
   float s = calculateDistance(t3,t2);
   char buffer[50];
-  int n = sprintf(buffer,"%.0f\n",floor(s+0.5));
+  
+  if (imperialUnitFlag){
+  int n = sprintf(buffer,"%.0f in\n",floor(s+0.5));
+  } else{
+    int n = sprintf(buffer,"%.0f cm\n",floor(s+0.5));
+  }
 
   float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
   float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
@@ -359,7 +364,11 @@ void drawSideTextTranslate(cv::Mat t3,cv::Mat t2, float unit){
     
   float s = calculateDistance(t3,t2);
   char buffer[50];
-  int n = sprintf(buffer,"%.0f\n",floor(s+0.5));
+  if (imperialUnitFlag){
+    int n = sprintf(buffer,"%.0f in\n",floor(s+0.5));
+  } else{
+    int n = sprintf(buffer,"%.0f cm\n",floor(s+0.5));
+  }
 
   float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
   float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
@@ -383,7 +392,13 @@ void drawArea(vector<cv::Point2f> centers){
 
   float area = calculateArea();
   char buffer[50];
-  int n = sprintf(buffer,"Area = %4.0f\n",floor(area+0.5));
+  
+  if (imperialUnitFlag){
+    int n = sprintf(buffer,"Area = %4.0f in\n",floor(area+0.5));
+  }
+  else{
+    int n = sprintf(buffer,"Area = %4.0f cm\n",floor(area+0.5));
+  }
 
   float x_area = 0;
   float y_area = 0;
