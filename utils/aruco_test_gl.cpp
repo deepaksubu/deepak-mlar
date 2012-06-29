@@ -66,10 +66,12 @@ enum Mode{
   Free,
   Triangle,
   Grid,
-  Line
+  Line,
+  Line2
 };
 
 bool imperialUnitFlag = false;
+bool xflag = false;
 float M2CM = 100.0f;
 float M2IN = 39.3700787f;
 
@@ -138,7 +140,7 @@ int main(int argc,char **argv)
         glutDisplayFunc( vDrawScene );
         glutIdleFunc( vIdle );
         glutReshapeFunc( vResize );
-        glutMouseFunc(vMouse);
+        //glutMouseFunc(vMouse);
 	glutKeyboardFunc(vKeyboard);
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
         glClearDepth( 1.0 );
@@ -170,9 +172,15 @@ void vKeyboard(unsigned char key,int x,int y){
   } else if (key == 'l'){
     mode = Line;
     cout << "I am in the line mode" << endl;
-  } else if (key == 'u'){
+  } else if (key == 'x'){
+    mode = Line2;
+    xflag = !xflag;
+    cout << "I am in the line mode2" << endl;
+    //glutPostRedisplay();
+  } 
+  else if (key == 'u'){
     imperialUnitFlag = !imperialUnitFlag;
-  }
+  } 
   else {
     mode = Free;
     cout << "I am in the default free mode" << endl;
@@ -301,6 +309,30 @@ void drawString(char* string){
 }
 
 
+
+void drawX(cv::Mat t3,cv::Mat t2){
+    
+  float s = calculateDistance(t3,t2);
+  char buffer[50];
+  int n = sprintf(buffer,"X\n");
+
+  float x_bmid = (t3.at<float>(0,0) + t2.at<float>(0,0))/2;
+  float y_bmid = (t3.at<float>(1,0) + t2.at<float>(1,0))/2;
+  float z_bmid = (-t3.at<float>(2,0) - t2.at<float>(2,0))/2;
+
+  glPushMatrix();
+  glColor3f(0,0,1);
+  
+  
+  glLoadIdentity();
+  glTranslatef(x_bmid,y_bmid,z_bmid);
+  glRasterPos3f( 0.0f, 0.0f, 0.0f );
+  drawString(buffer);
+  glPopMatrix();
+  cout << "I am in the X of line mode2"<<endl;
+  
+}
+
 void drawSideText(cv::Mat t3,cv::Mat t2){
     
   float s = calculateDistance(t3,t2);
@@ -351,11 +383,15 @@ void drawArea(vector<cv::Point2f> centers){
 
   float area = calculateArea();
   char buffer[50];
-  int n = sprintf(buffer,"%4.1f\n",floor(area+0.5));
+  int n = sprintf(buffer,"Area = %4.0f\n",floor(area+0.5));
 
   float x_area = 0;
   float y_area = 0;
   float z_area = 0;
+
+  float xtranslateArea = -4*0.015;
+
+  float ytranslateArea = 2.5*0.015;
   
   if (centers.size() == 4){
 
@@ -364,9 +400,9 @@ void drawArea(vector<cv::Point2f> centers){
     cv::Mat t2 = TheMarkers[2].Tvec;
     cv::Mat t3 = TheMarkers[3].Tvec;
 
-     x_area = (t3.at<float>(0,0) + t1.at<float>(0,0))/2;
-     y_area = (t3.at<float>(1,0) + t1.at<float>(1,0))/2;
-     z_area = (-t3.at<float>(2,0) - t1.at<float>(2,0))/2;
+    x_area = t0.at<float>(0,0) + xtranslateArea;
+    y_area = t0.at<float>(1,0) - ytranslateArea;
+    z_area = -t0.at<float>(2,0);
   
   } else if (centers.size() == 3){
     
@@ -374,11 +410,10 @@ void drawArea(vector<cv::Point2f> centers){
     cv::Mat t1 = TheMarkers[1].Tvec;
     cv::Mat t2 = TheMarkers[2].Tvec;
 
-    x_area = (t0.at<float>(0,0) + t1.at<float>(0,0) + t2.at<float>(0,0))/3;
-    y_area = (t0.at<float>(1,0) + t1.at<float>(1,0) + t2.at<float>(1,0))/3;
-    z_area = (-t0.at<float>(2,0) - t1.at<float>(2,0) - t2.at<float>(2,0))/3;
-    
- 
+    x_area = t0.at<float>(0,0) + xtranslateArea;;
+    y_area = t0.at<float>(1,0) - ytranslateArea;;
+    z_area = -t0.at<float>(2,0);
+
   }
 
   
@@ -438,7 +473,8 @@ void triangleMode(vector<cv::Point2f> centers){
 
 void lineMode(vector<cv::Point2f> centers){
   
-  float translateDistance = 0.15;
+  float translateDistance = -0.055;
+  float lineWidth = 2;
   
   if (centers.size() == 3){
     cv::Mat t0 = TheMarkers[0].Tvec;
@@ -448,6 +484,7 @@ void lineMode(vector<cv::Point2f> centers){
     glPushMatrix();
     glLoadIdentity();
     glColor3f(1,1,0);
+    glLineWidth(lineWidth);
     glBegin(GL_LINES);
     
     glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
@@ -470,6 +507,54 @@ void lineMode(vector<cv::Point2f> centers){
     
     drawSideText(t0,t1);
     drawSideText(t1,t2);
+    drawSideTextTranslate(t0,t2,translateDistance);
+    
+  }
+  
+}
+
+void lineMode2(vector<cv::Point2f> centers){
+  
+  float translateDistance = -0.055;
+  float lineWidth = 2;
+  
+  if (centers.size() == 3){
+    cv::Mat t0 = TheMarkers[0].Tvec;
+    cv::Mat t1 = TheMarkers[1].Tvec;
+    cv::Mat t2 = TheMarkers[2].Tvec;
+
+    glPushMatrix();
+    glLoadIdentity();
+    glColor3f(1,1,0);
+    glLineWidth(lineWidth);
+    glBegin(GL_LINES);
+    
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+
+    glVertex3f(t1.at<float>(0,0),t1.at<float>(1,0) ,-t1.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+
+    glEnd();
+    
+    glTranslatef(0.0f,translateDistance,0.0f);
+    
+    glBegin(GL_LINES);
+    glVertex3f(t0.at<float>(0,0),t0.at<float>(1,0) ,-t0.at<float>(2,0));
+    glVertex3f(t2.at<float>(0,0),t2.at<float>(1,0) ,-t2.at<float>(2,0));
+    glEnd();
+
+    glPopMatrix();
+    
+    
+    drawSideText(t0,t1);
+    
+    if (xflag){
+      drawX(t1,t2);
+    } else {
+      drawSideText(t1,t2);
+    }
+    
     drawSideTextTranslate(t0,t2,translateDistance);
     
   }
@@ -704,15 +789,15 @@ void vDrawScene()
       {
        	centers.push_back(TheMarkers[m].getCenter());
 	
-	TheMarkers[m].glGetModelViewMatrix(modelview_matrix);
-	glLoadIdentity();
-	glLoadMatrixd(modelview_matrix);
-	axis(TheMarkerSize);
-	glColor3f(1,0.4,0.4);
-	glTranslatef(0, TheMarkerSize/2,0);
-	glPushMatrix();
-	glutWireCube( TheMarkerSize );
-	glPopMatrix();
+	// TheMarkers[m].glGetModelViewMatrix(modelview_matrix);
+	// glLoadIdentity();
+	// glLoadMatrixd(modelview_matrix);
+	// axis(TheMarkerSize);
+	// glColor3f(1,0.4,0.4);
+	// glTranslatef(0, TheMarkerSize/2,0);
+	// glPushMatrix();
+	// glutWireCube( TheMarkerSize );
+	// glPopMatrix();
 
       }
     
@@ -737,16 +822,20 @@ void vDrawScene()
 
     } else if (mode == Line){
        int a = sprintf(textString,"%s","Line Mode");
-      lineMode(centers);
+       lineMode(centers);
 
-    }
+    } else if (mode == Line2){
+       int a = sprintf(textString,"%s","Line Mode2");
+       lineMode2(centers);
+     }
+
     
      int m =sprintf(unitString,"%s",imperialUnitFlag?"Imperial Units":"Metric Units");
     
     if (centers.size() > 0){
     cv::Mat t0 = TheMarkers[0].Tvec;
-    float yTranslate = -0.1f;
     float xTranslate = -0.1f;
+    float yTranslate = -0.1f;
     glPushMatrix();
     glLoadIdentity();
     glColor4f(1.0f,0.0f,0.0f,0.5f);
